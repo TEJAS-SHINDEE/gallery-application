@@ -23,7 +23,7 @@ export const Header = () => {
         </Link>
       </div>
       <div className='flex gap-4 items-center bg-white text-black rounded-full p-2'>
-        <p><Search size={20} strokeWidth={2} /></p>
+        <p><Search className='text-neutral-400' size={16} strokeWidth={2} /></p>
         <form 
         action={`/search/${query}`}
         >

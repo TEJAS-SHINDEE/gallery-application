@@ -14,8 +14,8 @@ const page = () => {
   const [newData, setNewData] = useState<any[]>(data);
   const [filter, setFilter] = useState<string>("");
 
-  const params = useParams();
-  const id = params.query;
+  const param = useParams();
+  const id = param.query;
   console.log('query',id)
 
   const setData = (query:string) => {

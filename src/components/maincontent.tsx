@@ -19,12 +19,16 @@ export function Maincontent() {
   const [next, setNext] = useState<number>(0);
   const [prev, setPrev] = useState<number>(0);
   const [imageData, setImageData] = useState([]);
-  const [shareData, setShareData] = useState<
-    { title: string; text: string; url: string }[]
-  >([]);
+  const [leftImage, setLeftImage] = useState([]);
+  const [rightImage, setRightImage] = useState([]);
+  const [shareImg, setShareImg] = useState([]);
 
   const handleNext = (index: number) => {
-    const nextIndex = imgIndex + 1 >= data.length ? 0 : imgIndex + 1;
+    const nextIndex:number = imgIndex + 1 >= data.length ? 0 : imgIndex + 1;
+    const rightIndex:number = imgIndex + 1 >= data.length ? 0 : nextIndex + 1
+    const leftIndex:number = imgIndex - 1 < 0 ? data.length % (imgIndex -1 ) : nextIndex - 1;
+    setRightImage(data[rightIndex]);
+    setLeftImage(data[leftIndex]);
     setImgIndex(nextIndex);
     setNext(next + 1);
     setPrev(prev + 1);
@@ -34,19 +38,42 @@ export function Maincontent() {
   };
 
   const handlePrev = (index: number) => {
-    const prevIndex = imgIndex - 1 < 0 ? data.length - 1 : imgIndex - 1;
+    const prevIndex:number = imgIndex - 1 < 0 ? data.length - 1 : imgIndex - 1;
+    const leftIndex:number =  imgIndex - 1 < 0 ? data.length % (prevIndex - 1) : prevIndex - 1 ;
+    const rightIndex:number = imgIndex + 1 >= data.length ? 0 : prevIndex +1 ;
     setImgIndex(prevIndex);
+    setLeftImage(data[leftIndex]);
+    setRightImage(data[rightIndex]);
+
+    const tempPrev = (prev <= 5) ?  data.length - index : prev - 1;
     setPrev(prev - 1);
     setNext(next - 1);
+    console.log('previndex ',prevIndex);
+    console.log('next index ',next);
+    console.log('prev index',prev);
     // setNext((prevNext) => (prevNext + 1 + data.length) % data.length); // Ensure next stays within bounds
-  // setPrev((prevPrev) => (prevPrev + 1 + data.length) % data.length); // Ensure prev stays within bounds
+    // setPrev((prevPrev) => (prevPrev + 1 + data.length) % data.length); // Ensure prev stays within bounds
     setImageData(data[prevIndex]);
   };
 
   const handleShare= async () =>  {
     alert('share invoked');
-    // const dd = 
-    // setShareData() //title text url
+ 
+    const response = await fetch(imageData.imageUrl);
+    const blob = await response.blob();
+    const file = new File([blob], "share-img.png" , {type:blob.type});
+    const tempShareImg = {
+          title: imageData.category, 
+          text: imageData.description, 
+          files : [file]
+    };
+
+    await navigator.share(tempShareImg);
+  }
+
+  const handleDownload = () => {
+    alert('img download');
+
   }
 
   return (
@@ -66,7 +93,7 @@ export function Maincontent() {
               style={{ height: "96%", width: "96%" }}
               alt="Picture of the author"
             />
-            <p className="absolute h-full w-full bg-black/40 px-10 py-6 text-base text-white px-1 opacity-0 hover:opacity-100 duration-500 ">
+            <p className="absolute h-full w-full bg-black/40 px-10 py-10 text-base text-white px-1 opacity-0 hover:opacity-100 duration-500 ">
               {image.description}
               {index}
               <span className="self-end p-10">
@@ -78,6 +105,8 @@ export function Maincontent() {
                 className="self-end p-10"
                 onClick={() => {
                   setOpen(!open);
+                  setRightImage(data[index+1]);
+                  setLeftImage(data[index-1]);
                   setImageData(image);
                   let nextIndex =
                     index + 4 >= data.length
@@ -85,11 +114,11 @@ export function Maincontent() {
                       : index + 5;
                   setNext(nextIndex);
                   let prevIndex =
-                    index - 4 < 0 ? data.length % (index - 4) : index - 4;
+                    index - 4 < 0 ? data.length % (data.length - index) : index - 4;
                   setPrev(prevIndex);
                   setImgIndex(index);
-                  console.log("next", next);
-                  console.log("prev", prev);
+                  // console.log("next", next);
+                  // console.log("prev", prev);
                 }}
               >
                 {" "}
@@ -106,6 +135,9 @@ export function Maincontent() {
                   className="absolute top-4 right-4 cursor-pointer"
                   onClick={() => {
                     setOpen(!open);
+                    setPrev(0);
+                    setNext(0);
+                    
                     setImageData([]);
                   }}
                 >
@@ -114,7 +146,9 @@ export function Maincontent() {
                 <button
                   type="button"
                   className="absolute top-16 right-4 cursor-pointer"
-                  onClick={()=>{handleShare()}}
+                  onClick={()=>{
+                    handleShare()
+                  }}
                 >
                   <Send size={30} strokeWidth={2} />
                 </button>
@@ -122,13 +156,25 @@ export function Maincontent() {
                   type="button"
                   className="absolute top-28 right-4 cursor-pointer"
                   onClick={()=>{
-                    alert('img download');
+                    handleDownload()
                   }}
                 >
                   <ImageDown size={28} />                
                 </button>
+              <div className="flex flex-row duration-500 ease-linear">
+
                 <Image
-                  className="rounded-sm self-center m-auto"
+                  className="rounded-sm self-center m-auto opacity-50 "
+                  src={leftImage?.imageUrl}
+                  width={360}
+                  height={360}
+                  sizes="100vw"
+                  // style={{ height: "80%", width: "90%" }}
+                  alt="Picture of the author"
+                />
+
+                <Image
+                  className="rounded-sm self-center m-auto "
                   src={imageData.imageUrl}
                   width={400}
                   height={400}
@@ -137,9 +183,19 @@ export function Maincontent() {
                   alt="Picture of the author"
                 />
 
+                <Image
+                  className="rounded-sm self-center m-auto opacity-50 "
+                  src={rightImage?.imageUrl}
+                  width={360}
+                  height={360}
+                  sizes="100vw"
+                  // style={{ height: "80%", width: "90%" }}
+                  alt="Picture of the author"
+                />
+                </div>
                 <button
                   type="button"
-                  className="absolute top-[50%] left-4 cursor-pointer"
+                  className="absolute top-[45%] left-4 cursor-pointer"
                   onClick={() => {
                     handlePrev(index);
                   }}
@@ -149,7 +205,7 @@ export function Maincontent() {
                 </button>
                 <button
                   type="button"
-                  className="absolute top-[50%] right-4 cursor-pointer"
+                  className="absolute top-[45%] right-4 cursor-pointer  "
                   onClick={() => {
                     handleNext(index);
                   }}
@@ -159,10 +215,10 @@ export function Maincontent() {
                 </button>
 
                 <div className="h-20 w-full  mt-8 flex flex-row items-center justify-center px-2 gap-2 overflow-auto ease-linear">
-                  {data.slice(prev, next).map((item) => (
+                  {data.slice(prev,next).map((item) => (
                     <div key={item.imageId} className="h-16 w-24  rounded-md">
                       <Image
-                        className={`self-center rounded-sm ${imageData?.imageUrl === item.imageUrl ? "scale-110 opacity-100" : "scale-100 opacity-45"}  duration-200 ease-linear `}
+                        className={`self-center rounded-sm duration-300 ease-linear ${imageData?.imageUrl === item.imageUrl ? "scale-110 opacity-100" : "scale-100 opacity-45"} `}
                         src={item.imageUrl}
                         width={0}
                         height={0}

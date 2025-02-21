@@ -3,19 +3,21 @@ import React, { useState } from "react";
 import { data } from "../data";
 import Image from "next/image";
 import Link from "next/link";
-import { CircleArrowLeft, CircleArrowRight, CircleX, SquareArrowOutUpRight, StretchHorizontal } from "lucide-react";
+import { CircleArrowLeft, CircleArrowRight, CircleX, ImageDown, Send, SquareArrowOutUpRight, StretchHorizontal } from "lucide-react";
 
 const page = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [imageData, setImageData] = useState<any[]>([]);
   const [newData, setNewData] = useState<any[]>(data);
   const [filter, setFilter] = useState<string>("");
-
-  console.log("sort page");
+  const [imgIndex, setImgIndex] = useState<number>(0);
+  const [next , setNext] = useState<number>(0);
+  const [prev , setPrev] = useState<number>(0);
+  const [shareImg, setShareImg] = useState([]);
 
   const setData = (query:string) => {
-    console.log("set data prev", data);
-    console.log("filter ", filter);
+    // console.log("set data prev", data);
+    // console.log("filter ", filter);
     let filterArray = data.filter((image) => {
       return image.category === query;
     });
@@ -23,10 +25,6 @@ const page = () => {
     console.log("new data ", newData);
   };
 
-  const [imgIndex, setImgIndex] = useState<number>(0);
-  const [next , setNext] = useState<number>(0);
-  const [prev , setPrev] = useState<number>(0);
-  
   const handleNext = (index:number) => {
     const nextIndex = imgIndex + 1 >= newData.length ? 0 : imgIndex + 1;
     setImgIndex(nextIndex);
@@ -41,6 +39,26 @@ const page = () => {
     setNext(next-1);
     setPrev(prev-1);
     setImageData(newData[prevIndex]);
+  }
+
+  const handleShare= async () =>  {
+    alert('share invoked');
+ 
+    const response = await fetch(imageData.imageUrl);
+    const blob = await response.blob();
+    const file = new File([blob], "share-img.png" , {type:blob.type});
+    const tempShareImg = {
+          title: imageData.category, 
+          text: imageData.description, 
+          files : [file]
+    };
+
+    await navigator.share(tempShareImg);
+  }
+
+  const handleDownload = () => {
+    alert('img download');
+    
   }
 
   return (
@@ -163,6 +181,24 @@ const page = () => {
                   }}
                 >
                   <CircleX strokeWidth={2} size={30} />
+                </button>
+                <button
+                  type="button"
+                  className="absolute top-16 right-4 cursor-pointer"
+                  onClick={()=>{
+                    handleShare()
+                  }}
+                >
+                  <Send size={30} strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  className="absolute top-28 right-4 cursor-pointer"
+                  onClick={()=>{
+                    handleDownload()
+                  }}
+                >
+                  <ImageDown size={28} />                
                 </button>
                 <Image
                   className="rounded-sm self-center m-auto duration-200"
