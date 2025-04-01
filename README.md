@@ -5,7 +5,7 @@ The **Gallery Application** is a web-based platform that allows users to upload,
 
 ## 🚀 Features
 - 📷 **Upload Images** – Users can upload images from their devices.
-- 🖼 **View Gallery** – Displays images in a grid format.
+- 🖼 **View Gallery** – Displays images in a grid format.    
 - 🔗 **Share Images** – Share specific images with others.
 - 🗑 **Delete Images** – Remove images from the gallery.
 - 🔍 **Search & Filter** – Search for images based on tags or names.
