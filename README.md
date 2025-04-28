@@ -1,5 +1,5 @@
 # Gallery Application
-
+                  
 ## 📌 Overview
 The **Gallery Application** is a web-based platform that allows users to upload, view, and share images efficiently. It provides an intuitive interface to organize and display a collection of images.
 
